@@ -1,1 +1,1 @@
-# ha-solar-integration
+# ha-luxcloud
