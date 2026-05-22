@@ -2,7 +2,7 @@
   "domain": "luxcloud",
   "name": "LuxCloud Inverter",
   "config_flow": true,
-  "documentation": "https://github.com/beardedtech0o/ha-solar-integration",
+  "documentation": "https://github.com/beardedtech0o/ha-luxcloud",
   "requirements": ["aiohttp>=3.8.0"],
   "dependencies": [],
   "codeowners": ["@beardedtech0o"],

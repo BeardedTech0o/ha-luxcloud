@@ -1,8 +1,8 @@
 # LuxCloud — Home Assistant Integration
 
 [![HACS Badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz)
-[![Validate](https://github.com/BeardedTech0o/ha-solar-integration/actions/workflows/validate.yml/badge.svg)](https://github.com/BeardedTech0o/ha-solar-integration/actions/workflows/validate.yml)
-[![GitHub Release](https://img.shields.io/github/v/release/BeardedTech0o/ha-solar-integration)](https://github.com/BeardedTech0o/ha-solar-integration/releases)
+[![Validate](https://github.com/BeardedTech0o/ha-luxcloud/actions/workflows/validate.yml/badge.svg)](https://github.com/BeardedTech0o/ha-luxcloud/actions/workflows/validate.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/BeardedTech0o/ha-luxcloud)](https://github.com/BeardedTech0o/ha-luxcloud/releases)
 
 Monitor and control your **LuxCloud** solar inverter and battery from Home Assistant.
 
@@ -35,13 +35,13 @@ All entities appear under a single **device** named after your inverter serial n
 
 1. Open HACS in Home Assistant.
 2. Click the **⋮** menu → **Custom repositories**.
-3. Add `https://github.com/BeardedTech0o/ha-solar-integration` — category **Integration**.
+3. Add `https://github.com/BeardedTech0o/ha-luxcloud` — category **Integration**.
 4. Search for **LuxCloud** and click **Download**.
 5. Restart Home Assistant.
 
 ### Option B — Manual
 
-1. Download the [latest release](https://github.com/BeardedTech0o/ha-solar-integration/releases/latest) zip.
+1. Download the [latest release](https://github.com/BeardedTech0o/ha-luxcloud/releases/latest) zip.
 2. Extract the `luxcloud/` folder into your `config/custom_components/` directory:
    ```
    config/
