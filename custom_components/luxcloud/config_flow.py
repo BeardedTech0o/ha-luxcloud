@@ -34,31 +34,44 @@ STEP_REAUTH_SCHEMA = vol.Schema(
 )
 
 
+def _build_api(hass, data: dict) -> LuxCloudApi:
+    return LuxCloudApi(
+        session=async_get_clientsession(hass),
+        username=data[CONF_USERNAME],
+        password=data[CONF_PASSWORD],
+        serial=data[CONF_SERIAL],
+        region=data[CONF_REGION],
+    )
+
+
+async def _validate(hass, data: dict) -> str | None:
+    """Return error key or None on success."""
+    try:
+        await _build_api(hass, data).async_validate_credentials()
+    except LuxCloudAuthError:
+        return "invalid_auth"
+    except LuxCloudApiError:
+        return "cannot_connect"
+    except Exception:  # noqa: BLE001
+        return "unknown"
+    return None
+
+
 class LuxCloudConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle the LuxCloud configuration flow."""
 
     VERSION = 1
 
+    # ------------------------------------------------------------------
+    # Initial setup
+    # ------------------------------------------------------------------
+
     async def async_step_user(self, user_input=None):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            session = async_get_clientsession(self.hass)
-            api = LuxCloudApi(
-                session=session,
-                username=user_input[CONF_USERNAME],
-                password=user_input[CONF_PASSWORD],
-                serial=user_input[CONF_SERIAL],
-                region=user_input[CONF_REGION],
-            )
-            try:
-                await api.async_validate_credentials()
-            except LuxCloudAuthError:
-                errors["base"] = "invalid_auth"
-            except LuxCloudApiError:
-                errors["base"] = "cannot_connect"
-            except Exception:  # noqa: BLE001
-                errors["base"] = "unknown"
+            if error := await _validate(self.hass, user_input):
+                errors["base"] = error
             else:
                 await self.async_set_unique_id(user_input[CONF_SERIAL])
                 self._abort_if_unique_id_configured()
@@ -73,8 +86,11 @@ class LuxCloudConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
         )
 
+    # ------------------------------------------------------------------
+    # Reauthentication
+    # ------------------------------------------------------------------
+
     async def async_step_reauth(self, entry_data):
-        """Triggered by ConfigEntryAuthFailed — ask user to re-enter credentials."""
         self._reauth_entry = self.hass.config_entries.async_get_entry(
             self.context["entry_id"]
         )
@@ -84,31 +100,54 @@ class LuxCloudConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors: dict[str, str] = {}
 
         if user_input is not None:
-            existing = self._reauth_entry
-            merged = {**existing.data, **user_input}
-            session = async_get_clientsession(self.hass)
-            api = LuxCloudApi(
-                session=session,
-                username=merged[CONF_USERNAME],
-                password=merged[CONF_PASSWORD],
-                serial=merged[CONF_SERIAL],
-                region=merged[CONF_REGION],
-            )
-            try:
-                await api.async_validate_credentials()
-            except LuxCloudAuthError:
-                errors["base"] = "invalid_auth"
-            except LuxCloudApiError:
-                errors["base"] = "cannot_connect"
-            except Exception:  # noqa: BLE001
-                errors["base"] = "unknown"
+            merged = {**self._reauth_entry.data, **user_input}
+            if error := await _validate(self.hass, merged):
+                errors["base"] = error
             else:
-                self.hass.config_entries.async_update_entry(existing, data=merged)
-                await self.hass.config_entries.async_reload(existing.entry_id)
+                self.hass.config_entries.async_update_entry(
+                    self._reauth_entry, data=merged
+                )
+                await self.hass.config_entries.async_reload(
+                    self._reauth_entry.entry_id
+                )
                 return self.async_abort(reason="reauth_successful")
 
         return self.async_show_form(
             step_id="reauth_confirm",
             data_schema=STEP_REAUTH_SCHEMA,
+            errors=errors,
+        )
+
+    # ------------------------------------------------------------------
+    # Reconfiguration (change region or credentials without re-adding)
+    # ------------------------------------------------------------------
+
+    async def async_step_reconfigure(self, user_input=None):
+        entry = self._get_reconfigure_entry()
+        errors: dict[str, str] = {}
+
+        if user_input is not None:
+            merged = {**entry.data, **user_input}
+            if error := await _validate(self.hass, merged):
+                errors["base"] = error
+            else:
+                return self.async_update_reload_and_abort(
+                    entry,
+                    data=merged,
+                    reason="reconfigure_successful",
+                )
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_USERNAME, default=entry.data[CONF_USERNAME]): str,
+                    vol.Required(CONF_PASSWORD): str,
+                    vol.Required(CONF_SERIAL, default=entry.data[CONF_SERIAL]): str,
+                    vol.Required(
+                        CONF_REGION, default=entry.data[CONF_REGION]
+                    ): vol.In([REGION_GLOBAL, REGION_EU]),
+                }
+            ),
             errors=errors,
         )

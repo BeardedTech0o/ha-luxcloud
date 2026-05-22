@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Connect to LuxCloud",
-        "description": "Enter your **LuxCloud cloud account** credentials and inverter details.\n\nDon't have an account? Download the **LuxCloud** app (iOS / Android) and register for free, then add your inverter using the serial number on the label.",
+        "description": "Enter your **LuxPower cloud account** credentials and inverter details.\n\nDon't have an account? Download the **LuxPower** app (iOS / Android) and register for free, then add your inverter using the serial number on the label.",
         "data": {
           "username": "Email address",
           "password": "Password",
@@ -11,10 +11,10 @@
           "region": "Server region"
         },
         "data_description": {
-          "username": "The email address you use to log in to the LuxCloud app or web portal.",
-          "password": "Your LuxCloud account password.",
-          "serial_number": "Printed on the label on the side of your inverter — typically 10 characters, e.g. `2312XXXXXXXX`. You can also find it in the LuxCloud app under Device → Info.",
-          "region": "Choose **EU** if your inverter is registered on the European server (eu.luxpowertek.com), or **Global** for all other regions."
+          "username": "The email address you use to log in to the LuxPower app or web portal.",
+          "password": "Your LuxPower account password.",
+          "serial_number": "Printed on the label on the side of your inverter — typically 10 characters, e.g. `2312XXXXXXXX`. Also visible in the LuxPower app under Device → Info.",
+          "region": "Choose **EU** if your inverter is registered on the European server (eu.luxpowertek.com), otherwise choose **Global**."
         }
       },
       "reauth_confirm": {
@@ -24,16 +24,88 @@
           "username": "Email address",
           "password": "Password"
         }
+      },
+      "reconfigure": {
+        "title": "Reconfigure LuxCloud",
+        "description": "Update your credentials, serial number, or server region.",
+        "data": {
+          "username": "Email address",
+          "password": "Password",
+          "serial_number": "Inverter serial number",
+          "region": "Server region"
+        },
+        "data_description": {
+          "serial_number": "Printed on the label on the side of your inverter.",
+          "region": "Choose **EU** if your inverter is on the European server, otherwise **Global**."
+        }
       }
     },
     "error": {
-      "invalid_auth": "Incorrect username or password. Please check your LuxCloud app credentials.",
-      "cannot_connect": "Could not reach the LuxCloud server. Check your internet connection or try the other region.",
+      "invalid_auth": "Incorrect username or password. Please check your LuxPower app credentials.",
+      "cannot_connect": "Could not reach the LuxPower server. Check your internet connection or try the other region.",
       "unknown": "Unexpected error — check the Home Assistant logs for details."
     },
     "abort": {
       "already_configured": "This inverter is already configured.",
-      "reauth_successful": "Re-authentication successful."
+      "reauth_successful": "Re-authentication successful.",
+      "reconfigure_successful": "Reconfiguration successful."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "p_pv":            {"name": "Solar Power"},
+      "p_pv1":           {"name": "Solar Power String 1"},
+      "p_pv2":           {"name": "Solar Power String 2"},
+      "p_battery":       {"name": "Battery Power"},
+      "p_grid":          {"name": "Grid Power"},
+      "p_load":          {"name": "Load Power"},
+      "p_eps":           {"name": "EPS Power"},
+      "soc":             {"name": "Battery State of Charge"},
+      "v_pv1":           {"name": "PV Voltage String 1"},
+      "v_pv2":           {"name": "PV Voltage String 2"},
+      "v_bat":           {"name": "Battery Voltage"},
+      "v_ac_r":          {"name": "AC Voltage"},
+      "i_pv1":           {"name": "PV Current String 1"},
+      "i_pv2":           {"name": "PV Current String 2"},
+      "i_bat":           {"name": "Battery Current"},
+      "t_inner":         {"name": "Inverter Temperature"},
+      "t_bat":           {"name": "Battery Temperature"},
+      "t_rad1":          {"name": "Radiator Temperature"},
+      "e_pv_day":        {"name": "Solar Energy Today"},
+      "e_to_grid_day":   {"name": "Export Energy Today"},
+      "e_to_user_day":   {"name": "Import Energy Today"},
+      "e_discharge_day": {"name": "Battery Discharge Today"},
+      "e_charge_day":    {"name": "Battery Charge Today"},
+      "e_eps_day":       {"name": "EPS Energy Today"},
+      "e_pv_all":        {"name": "Solar Energy Total"},
+      "e_to_grid_all":   {"name": "Export Energy Total"},
+      "e_to_user_all":   {"name": "Import Energy Total"},
+      "e_discharge_all": {"name": "Battery Discharge Total"},
+      "e_charge_all":    {"name": "Battery Charge Total"},
+      "status":          {"name": "Inverter Status"},
+      "work_mode":       {"name": "Work Mode"}
+    },
+    "switch": {
+      "ac_charge": {"name": "AC Charge"}
+    },
+    "number": {
+      "ac_charge_current":    {"name": "AC Charge Current Limit"},
+      "discharge_cutoff_soc": {"name": "Discharge Cutoff SOC"},
+      "charge_cutoff_soc":    {"name": "Charge Cutoff SOC"}
+    },
+    "select": {
+      "work_mode_control": {"name": "Work Mode"}
+    }
+  },
+  "exceptions": {
+    "api_error": {
+      "message": "LuxCloud API error: {message}"
+    }
+  },
+  "services": {
+    "refresh": {
+      "name": "Refresh",
+      "description": "Force an immediate data refresh from the LuxCloud API."
     }
   }
 }

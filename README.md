@@ -153,6 +153,57 @@ automation:
 
 ---
 
+## Use cases
+
+- **Monitor your solar system** — track live power flows and daily energy totals on a dashboard
+- **Energy Dashboard** — feed solar, grid, and battery data directly into the built-in HA Energy Dashboard
+- **Forecast-based charging** — pair with Solcast or similar to automatically charge the battery from the grid before cloudy days
+- **Time-of-use optimisation** — switch work modes and charge/discharge limits via automations based on electricity tariff schedules
+- **Battery protection** — set charge/discharge cutoff SOC to extend battery lifespan
+
+---
+
+## Data updates
+
+The integration polls the LuxPower cloud API every **30 seconds**. All entities update simultaneously from a shared data snapshot (no parallel API calls per entity). If the inverter or cloud server is unreachable, entities show as **Unavailable** and Home Assistant logs a warning; they recover automatically on the next successful poll.
+
+To force an immediate refresh, call the `luxcloud.refresh` service.
+
+---
+
+## Supported devices
+
+Any LuxPower inverter with internet connectivity via the LuxPower WiFi/LAN dongle, including:
+
+| Series | Models |
+|--------|--------|
+| LXP Hybrid | 3.6 kW, 5 kW, 6 kW, 7.5 kW, 10 kW, 12 kW |
+| LXP AC Couple | All variants |
+
+The integration connects to the LuxPower cloud API and does not require local network access to the inverter.
+
+---
+
+## Known limitations
+
+- **Cloud dependency** — requires the inverter to be online and the LuxPower cloud API to be reachable. Local-only setups are not supported.
+- **Single inverter per entry** — add the integration once per inverter serial number.
+- **30-second minimum poll interval** — the API does not support push/webhooks; polling is the only option.
+- **AC charge state read-back** — the AC charge switch reflects the last known state from the API. If you change the setting in the LuxPower app, it will sync on the next poll.
+- **Control acknowledgement** — write commands (switch, number, select) return immediately; the updated value is confirmed after the next poll cycle.
+
+---
+
+## Removing the integration
+
+1. Go to **Settings → Devices & Services**.
+2. Find **LuxCloud** and click **⋮ → Delete**.
+3. Confirm the removal.
+
+This removes the config entry, all entities, and the device. It does **not** affect your LuxPower cloud account or inverter settings.
+
+---
+
 ## Troubleshooting
 
 **"Cannot connect"** — Check that your inverter is online in the LuxPower app. Try switching the region between Global and EU.
@@ -162,6 +213,8 @@ automation:
 **Entities show "Unavailable"** — The inverter may be offline (no internet, power cut). Check the LuxPower app. Entities will recover automatically when it comes back.
 
 **Data is stale** — The integration polls every 30 seconds. If your inverter has poor connectivity, increase the poll interval in `custom_components/luxcloud/const.py` (`DEFAULT_SCAN_INTERVAL`).
+
+**Reconfiguring** — To change credentials or region without removing the integration, go to **Settings → Devices & Services → LuxCloud → ⋮ → Reconfigure**.
 
 ---
 
@@ -175,6 +228,13 @@ docker run --rm -v "$(pwd)":/github/workspace homeassistant/hassfest
 
 # HACS
 docker run --rm -v "$(pwd)":/github/workspace ghcr.io/hacs/action
+```
+
+Run tests with:
+
+```bash
+pip install -r requirements_test.txt
+pytest tests/
 ```
 
 ---

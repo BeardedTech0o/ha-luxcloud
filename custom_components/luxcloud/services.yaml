@@ -1,0 +1,6 @@
+refresh:
+  name: Refresh
+  description: >
+    Force an immediate data refresh from the LuxCloud API instead of waiting
+    for the next scheduled poll (every 30 seconds).
+  fields: {}

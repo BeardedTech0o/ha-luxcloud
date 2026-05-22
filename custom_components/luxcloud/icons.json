@@ -1,0 +1,51 @@
+{
+  "services": {
+    "refresh": "mdi:refresh"
+  },
+  "entity": {
+    "sensor": {
+      "p_pv":          {"default": "mdi:solar-power"},
+      "p_pv1":         {"default": "mdi:solar-panel"},
+      "p_pv2":         {"default": "mdi:solar-panel"},
+      "p_battery":     {"default": "mdi:battery-charging"},
+      "p_grid":        {"default": "mdi:transmission-tower"},
+      "p_load":        {"default": "mdi:home-lightning-bolt"},
+      "p_eps":         {"default": "mdi:power-socket"},
+      "soc":           {"default": "mdi:battery"},
+      "v_pv1":         {"default": "mdi:sine-wave"},
+      "v_pv2":         {"default": "mdi:sine-wave"},
+      "v_bat":         {"default": "mdi:battery-outline"},
+      "v_ac_r":        {"default": "mdi:sine-wave"},
+      "i_pv1":         {"default": "mdi:current-dc"},
+      "i_pv2":         {"default": "mdi:current-dc"},
+      "i_bat":         {"default": "mdi:current-dc"},
+      "t_inner":       {"default": "mdi:thermometer"},
+      "t_bat":         {"default": "mdi:thermometer"},
+      "t_rad1":        {"default": "mdi:thermometer"},
+      "e_pv_day":      {"default": "mdi:solar-power"},
+      "e_to_grid_day": {"default": "mdi:transmission-tower-export"},
+      "e_to_user_day": {"default": "mdi:transmission-tower-import"},
+      "e_discharge_day":{"default": "mdi:battery-minus"},
+      "e_charge_day":  {"default": "mdi:battery-plus"},
+      "e_eps_day":     {"default": "mdi:power-socket"},
+      "e_pv_all":      {"default": "mdi:solar-power"},
+      "e_to_grid_all": {"default": "mdi:transmission-tower-export"},
+      "e_to_user_all": {"default": "mdi:transmission-tower-import"},
+      "e_discharge_all":{"default": "mdi:battery-minus"},
+      "e_charge_all":  {"default": "mdi:battery-plus"},
+      "status":        {"default": "mdi:information-outline"},
+      "work_mode":     {"default": "mdi:cog"}
+    },
+    "switch": {
+      "ac_charge": {"default": "mdi:battery-charging-100"}
+    },
+    "number": {
+      "ac_charge_current":  {"default": "mdi:current-ac"},
+      "discharge_cutoff_soc":{"default": "mdi:battery-low"},
+      "charge_cutoff_soc":  {"default": "mdi:battery-high"}
+    },
+    "select": {
+      "work_mode_control": {"default": "mdi:cog-transfer"}
+    }
+  }
+}

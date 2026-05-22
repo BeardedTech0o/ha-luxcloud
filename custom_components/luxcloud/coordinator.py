@@ -5,6 +5,7 @@ import logging
 from datetime import timedelta
 from typing import Any
 
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -18,11 +19,17 @@ _LOGGER = logging.getLogger(__name__)
 class LuxCloudCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Polls LuxCloud cloud API and distributes data to all entities."""
 
-    def __init__(self, hass: HomeAssistant, api: LuxCloudApi) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        config_entry: ConfigEntry,
+        api: LuxCloudApi,
+    ) -> None:
         super().__init__(
             hass,
             _LOGGER,
             name=DOMAIN,
+            config_entry=config_entry,
             update_interval=timedelta(seconds=DEFAULT_SCAN_INTERVAL),
         )
         self.api = api

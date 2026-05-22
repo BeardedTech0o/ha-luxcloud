@@ -3,10 +3,9 @@ from __future__ import annotations
 
 import logging
 
-import aiohttp
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import LuxCloudApi
@@ -17,8 +16,10 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = [Platform.SENSOR, Platform.SWITCH, Platform.NUMBER, Platform.SELECT]
 
+type LuxCloudConfigEntry = ConfigEntry[LuxCloudCoordinator]
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+
+async def async_setup_entry(hass: HomeAssistant, entry: LuxCloudConfigEntry) -> bool:
     session = async_get_clientsession(hass)
     api = LuxCloudApi(
         session=session,
@@ -27,16 +28,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         serial=entry.data[CONF_SERIAL],
         region=entry.data[CONF_REGION],
     )
-    coordinator = LuxCloudCoordinator(hass, api)
+    coordinator = LuxCloudCoordinator(hass, entry, api)
     await coordinator.async_config_entry_first_refresh()
+    entry.runtime_data = coordinator
 
-    hass.data.setdefault(DOMAIN, {})[entry.entry_id] = coordinator
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    async def handle_refresh(_call: ServiceCall) -> None:
+        await coordinator.async_request_refresh()
+
+    hass.services.async_register(DOMAIN, "refresh", handle_refresh)
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, entry: LuxCloudConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-    if unload_ok:
-        hass.data[DOMAIN].pop(entry.entry_id)
+    if unload_ok and not hass.config_entries.async_entries(DOMAIN):
+        hass.services.async_remove(DOMAIN, "refresh")
     return unload_ok
