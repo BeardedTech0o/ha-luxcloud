@@ -1,0 +1,11 @@
+{
+  "domain": "luxpower",
+  "name": "LuxPower Inverter",
+  "config_flow": true,
+  "documentation": "https://github.com/beardedtech0o/ha-solar-integration",
+  "requirements": ["aiohttp>=3.8.0"],
+  "dependencies": [],
+  "codeowners": ["@beardedtech0o"],
+  "iot_class": "cloud_polling",
+  "version": "1.0.0"
+}

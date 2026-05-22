@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to LuxPower",
+        "description": "Enter your LuxPower cloud account credentials and inverter serial number.",
+        "data": {
+          "username": "Email / Username",
+          "password": "Password",
+          "serial_number": "Inverter Serial Number",
+          "region": "Server Region"
+        }
+      }
+    },
+    "error": {
+      "invalid_auth": "Invalid username or password.",
+      "cannot_connect": "Cannot reach the LuxPower server. Check your network or try the other region."
+    },
+    "abort": {
+      "already_configured": "This inverter is already configured."
+    }
+  }
+}
