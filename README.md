@@ -1,129 +1,152 @@
-# LuxCloud — Home Assistant Integration
+<div align="center">
 
-[![HACS Badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz)
-[![Validate](https://github.com/BeardedTech0o/ha-luxcloud/actions/workflows/validate.yml/badge.svg)](https://github.com/BeardedTech0o/ha-luxcloud/actions/workflows/validate.yml)
-[![GitHub Release](https://img.shields.io/github/v/release/BeardedTech0o/ha-luxcloud)](https://github.com/BeardedTech0o/ha-luxcloud/releases)
+# LuxCloud for Home Assistant
 
-Monitor and control your **LuxCloud** solar inverter and battery from Home Assistant.
+**Monitor and control your LuxPower solar inverter and battery storage directly from Home Assistant.**
+
+[![HACS Badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://hacs.xyz)
+[![GitHub Release](https://img.shields.io/github/v/release/BeardedTech0o/ha-luxcloud?style=for-the-badge&color=brightgreen)](https://github.com/BeardedTech0o/ha-luxcloud/releases)
+[![Validate](https://img.shields.io/github/actions/workflow/status/BeardedTech0o/ha-luxcloud/validate.yml?style=for-the-badge&label=Validate)](https://github.com/BeardedTech0o/ha-luxcloud/actions/workflows/validate.yml)
+[![License](https://img.shields.io/github/license/BeardedTech0o/ha-luxcloud?style=for-the-badge)](LICENSE)
+[![HA Min Version](https://img.shields.io/badge/Home%20Assistant-2023.4%2B-blue?style=for-the-badge&logo=home-assistant)](https://www.home-assistant.io)
+
+</div>
 
 ---
 
-## What you get
+## Overview
+
+LuxCloud connects your **LuxPower** hybrid inverter to Home Assistant via the LuxPower cloud API, giving you real-time monitoring of your solar, battery, and grid power flows — plus full control over charge/discharge behaviour from automations and dashboards.
+
+### What you get
 
 | Platform | Entities |
-|----------|----------|
-| **Sensor** | Solar power, battery power & SOC, grid import/export power, home load power, PV string voltages & currents, inverter & battery temperature, daily and lifetime energy totals (kWh), inverter status |
-| **Switch** | AC charge on/off |
-| **Number** | AC charge current limit, discharge cutoff SOC, charge cutoff SOC |
-| **Select** | Work mode (Self-use / Feed-in Priority / Backup / Manual) |
+|:---------|:---------|
+| 🌡️ **Sensor** | Solar power, battery power & SOC, grid import/export, home load, PV string voltages & currents, temperatures, daily & lifetime energy totals, inverter status |
+| 🔀 **Switch** | AC charge on/off |
+| 🔢 **Number** | AC charge current limit, discharge cutoff SOC, charge cutoff SOC |
+| 🔘 **Select** | Work mode — Self-use / Feed-in Priority / Backup / Manual |
 
-All entities appear under a single **device** named after your inverter serial number.
+> All entities are grouped under a single **device** per inverter, named by serial number.
 
 ---
 
 ## Requirements
 
-- Home Assistant **2023.1** or newer
-- A **LuxPower cloud account** — register free in the [LuxPower app](https://www.luxpowertek.com/app.html) (iOS / Android)
-- Your inverter added to the app and connected to the internet via its WiFi/LAN dongle
+| Requirement | Details |
+|:------------|:--------|
+| Home Assistant | 2023.4 or newer |
+| LuxPower account | Free — register in the [LuxPower app](https://www.luxpowertek.com/app.html) |
+| LuxPower inverter | Any LXP series with WiFi/LAN dongle connected to the internet |
 
 ---
 
 ## Installation
 
-### Option A — HACS (recommended)
+### Option A — HACS *(recommended)*
 
-1. Open HACS in Home Assistant.
-2. Click the **⋮** menu → **Custom repositories**.
-3. Add `https://github.com/BeardedTech0o/ha-luxcloud` — category **Integration**.
-4. Search for **LuxCloud** and click **Download**.
-5. Restart Home Assistant.
+1. Open **HACS** in Home Assistant
+2. Click **⋮ → Custom repositories**
+3. Add `https://github.com/BeardedTech0o/ha-luxcloud` with category **Integration**
+4. Search **LuxCloud** → **Download**
+5. Restart Home Assistant
 
 ### Option B — Manual
 
-1. Download the [latest release](https://github.com/BeardedTech0o/ha-luxcloud/releases/latest) zip.
-2. Extract the `luxcloud/` folder into your `config/custom_components/` directory:
-   ```
-   config/
-   └── custom_components/
-       └── luxcloud/
-           ├── __init__.py
-           ├── manifest.json
-           └── ...
-   ```
-3. Restart Home Assistant.
+1. Download the [latest release](https://github.com/BeardedTech0o/ha-luxcloud/releases/latest) `.zip`
+2. Extract and copy the `luxcloud/` folder to your HA config:
+
+```
+config/
+└── custom_components/
+    └── luxcloud/       ← copy here
+        ├── __init__.py
+        ├── manifest.json
+        └── ...
+```
+
+3. Restart Home Assistant
 
 ---
 
-## Setup
+## Configuration
 
-1. Go to **Settings → Devices & Services**.
-2. Click **+ Add Integration** and search for **LuxCloud**.
-3. Fill in the form:
+1. Go to **Settings → Devices & Services → + Add Integration**
+2. Search for **LuxCloud**
+3. Complete the form:
 
-   | Field | What to enter |
-   |-------|--------------|
-   | **Email address** | The email you use to log in to the LuxPower app |
-   | **Password** | Your LuxPower account password |
-   | **Inverter serial number** | Printed on the label on the side of your inverter (e.g. `2312XXXXXXXX`). Also visible in the app under *Device → Info* |
-   | **Server region** | **EU** if you're in Europe (`eu.luxpowertek.com`), otherwise **Global** |
+| Field | Where to find it |
+|:------|:----------------|
+| **Email address** | Your LuxPower app login email |
+| **Password** | Your LuxPower app password |
+| **Inverter serial number** | Label on the side of your inverter, or LuxPower app → Device → Info |
+| **Server region** | `EU` for Europe (`eu.luxpowertek.com`), otherwise `Global` |
 
-4. Click **Submit**. Home Assistant will verify your credentials and add the device.
+4. Click **Submit** — credentials are verified before the entry is saved
 
-> **Tip:** If you have multiple inverters on the same account, add the integration once per serial number.
+> **Multiple inverters?** Add the integration once per serial number.
 
 ---
 
-## Entities reference
+## Entities
 
-### Power sensors (live, updated every 30 s)
+### ⚡ Live power sensors *(updated every 30 s)*
 
-| Entity | Description |
-|--------|-------------|
-| `sensor.luxcloud_SERIAL_solar_power` | Total solar generation in Watts. Positive = producing. |
-| `sensor.luxcloud_SERIAL_battery_power` | Battery power in Watts. **Positive = charging**, negative = discharging. |
-| `sensor.luxcloud_SERIAL_grid_power` | Grid power in Watts. **Positive = importing**, negative = exporting. |
-| `sensor.luxcloud_SERIAL_load_power` | Home consumption in Watts. |
-| `sensor.luxcloud_SERIAL_battery_state_of_charge` | Battery charge level (%). |
+| Entity | Unit | Description |
+|:-------|:----:|:------------|
+| Solar Power | W | Total PV generation. Positive = producing |
+| Battery Power | W | Positive = charging, negative = discharging |
+| Grid Power | W | Positive = importing, negative = exporting |
+| Load Power | W | Home consumption |
+| Battery State of Charge | % | Current battery level |
 
-### Daily energy totals (reset at midnight)
+### 📊 Daily energy totals *(reset at midnight)*
 
-| Entity | Description |
-|--------|-------------|
-| `sensor.luxcloud_SERIAL_solar_energy_today` | kWh generated by solar panels today |
-| `sensor.luxcloud_SERIAL_export_energy_today` | kWh sent to the grid today |
-| `sensor.luxcloud_SERIAL_import_energy_today` | kWh taken from the grid today |
-| `sensor.luxcloud_SERIAL_battery_charge_today` | kWh charged into the battery today |
-| `sensor.luxcloud_SERIAL_battery_discharge_today` | kWh discharged from the battery today |
+| Entity | Unit | Description |
+|:-------|:----:|:------------|
+| Solar Energy Today | kWh | PV generation since midnight |
+| Export Energy Today | kWh | Sent to the grid today |
+| Import Energy Today | kWh | Drawn from the grid today |
+| Battery Charge Today | kWh | Charged into battery today |
+| Battery Discharge Today | kWh | Discharged from battery today |
 
-All energy sensors are compatible with the **Energy Dashboard** (`state_class: total_increasing`).
+> All energy sensors use `state_class: total_increasing` — compatible with the **Energy Dashboard** out of the box.
 
-### Controls
+### 🎛️ Controls
 
-| Entity | Description |
-|--------|-------------|
-| `switch.luxcloud_SERIAL_ac_charge` | Turn grid-to-battery charging on or off |
-| `number.luxcloud_SERIAL_ac_charge_current_limit` | Maximum AC charge current (0–80 A) |
-| `number.luxcloud_SERIAL_discharge_cutoff_soc` | Minimum SOC before the battery stops discharging (%) |
-| `number.luxcloud_SERIAL_charge_cutoff_soc` | SOC at which charging stops (%) |
-| `select.luxcloud_SERIAL_work_mode` | Operating mode: Self-use / Feed-in Priority / Backup / Manual |
+| Entity | Type | Range | Description |
+|:-------|:----:|:-----:|:------------|
+| AC Charge | Switch | on/off | Enable/disable grid-to-battery charging |
+| AC Charge Current Limit | Number | 0–80 A | Maximum charge current from grid |
+| Discharge Cutoff SOC | Number | 5–100 % | Battery stops discharging below this level |
+| Charge Cutoff SOC | Number | 5–100 % | Battery stops charging above this level |
+| Work Mode | Select | — | Self-use / Feed-in Priority / Backup / Manual |
+
+### 🔧 Diagnostic sensors *(disabled by default)*
+
+Voltages, currents, temperatures, PV string detail, inverter status, and lifetime energy totals. Enable individually in the entity settings if needed.
 
 ---
 
 ## Energy Dashboard
 
-Add these sensors to get a full picture in the HA Energy Dashboard:
+Add these sensors in **Settings → Dashboards → Energy**:
 
-- **Solar production** → `Solar energy today`
-- **Grid consumption** → `Import energy today`
-- **Return to grid** → `Export energy today`
-- **Battery** → `Battery charge today` / `Battery discharge today`
+```
+Solar production    →  Solar Energy Today
+Grid consumption    →  Import Energy Today
+Return to grid      →  Export Energy Today
+Battery charged     →  Battery Charge Today
+Battery discharged  →  Battery Discharge Today
+```
 
 ---
 
-## Automation example — forecast-based overnight charging
+## Automation examples
 
-Charge the battery from the grid overnight when tomorrow's solar forecast is low:
+### Forecast-based overnight charging
+
+Charge from the grid when tomorrow's solar forecast is low:
 
 ```yaml
 automation:
@@ -133,8 +156,8 @@ automation:
         at: "22:00:00"
     condition:
       - condition: numeric_state
-        entity_id: sensor.solcast_forecast_tomorrow   # adjust to your forecast sensor
-        below: 5                                       # kWh threshold
+        entity_id: sensor.solcast_forecast_tomorrow
+        below: 5  # kWh — adjust to your needs
     action:
       - service: switch.turn_on
         target:
@@ -151,94 +174,143 @@ automation:
           option: "Self Use"
 ```
 
----
+### Time-of-use tariff switching
 
-## Use cases
+Switch to Feed-in Priority during peak export rates:
 
-- **Monitor your solar system** — track live power flows and daily energy totals on a dashboard
-- **Energy Dashboard** — feed solar, grid, and battery data directly into the built-in HA Energy Dashboard
-- **Forecast-based charging** — pair with Solcast or similar to automatically charge the battery from the grid before cloudy days
-- **Time-of-use optimisation** — switch work modes and charge/discharge limits via automations based on electricity tariff schedules
-- **Battery protection** — set charge/discharge cutoff SOC to extend battery lifespan
+```yaml
+automation:
+  - alias: "LuxCloud: export during peak rate"
+    trigger:
+      - platform: time
+        at: "16:00:00"
+    action:
+      - service: select.select_option
+        target:
+          entity_id: select.luxcloud_SERIAL_work_mode
+        data:
+          option: "Feed-in Priority"
+  - alias: "LuxCloud: return to self-use after peak"
+    trigger:
+      - platform: time
+        at: "19:00:00"
+    action:
+      - service: select.select_option
+        target:
+          entity_id: select.luxcloud_SERIAL_work_mode
+        data:
+          option: "Self Use"
+```
 
----
+### Force a data refresh
 
-## Data updates
-
-The integration polls the LuxPower cloud API every **30 seconds**. All entities update simultaneously from a shared data snapshot (no parallel API calls per entity). If the inverter or cloud server is unreachable, entities show as **Unavailable** and Home Assistant logs a warning; they recover automatically on the next successful poll.
-
-To force an immediate refresh, call the `luxcloud.refresh` service.
+```yaml
+service: luxcloud.refresh
+```
 
 ---
 
 ## Supported devices
 
-Any LuxPower inverter with internet connectivity via the LuxPower WiFi/LAN dongle, including:
-
-| Series | Models |
-|--------|--------|
+| Series | Typical models |
+|:-------|:--------------|
 | LXP Hybrid | 3.6 kW, 5 kW, 6 kW, 7.5 kW, 10 kW, 12 kW |
 | LXP AC Couple | All variants |
 
-The integration connects to the LuxPower cloud API and does not require local network access to the inverter.
+Requires the LuxPower WiFi/LAN monitoring dongle and an active internet connection. Does **not** require local network access to the inverter.
 
 ---
 
 ## Known limitations
 
-- **Cloud dependency** — requires the inverter to be online and the LuxPower cloud API to be reachable. Local-only setups are not supported.
-- **Single inverter per entry** — add the integration once per inverter serial number.
-- **30-second minimum poll interval** — the API does not support push/webhooks; polling is the only option.
-- **AC charge state read-back** — the AC charge switch reflects the last known state from the API. If you change the setting in the LuxPower app, it will sync on the next poll.
-- **Control acknowledgement** — write commands (switch, number, select) return immediately; the updated value is confirmed after the next poll cycle.
-
----
-
-## Removing the integration
-
-1. Go to **Settings → Devices & Services**.
-2. Find **LuxCloud** and click **⋮ → Delete**.
-3. Confirm the removal.
-
-This removes the config entry, all entities, and the device. It does **not** affect your LuxPower cloud account or inverter settings.
+| Limitation | Details |
+|:-----------|:--------|
+| Cloud dependency | Requires internet and the LuxPower cloud API to be reachable |
+| Poll-only | API has no push/webhook support; minimum update interval is 30 s |
+| Control read-back | Write commands are confirmed on the next poll cycle (~30 s) |
+| No local mode | Local RS485/Modbus is not currently supported |
 
 ---
 
 ## Troubleshooting
 
-**"Cannot connect"** — Check that your inverter is online in the LuxPower app. Try switching the region between Global and EU.
+<details>
+<summary><strong>"Cannot connect" during setup</strong></summary>
 
-**"Invalid auth"** — Double-check your email and password. Note the password is case-sensitive. If you use social login (Google/Apple) in the app, you may need to set a password via *Forgot Password*.
+- Check your inverter is online in the LuxPower app
+- Try switching the region between **Global** and **EU**
+- Check your Home Assistant has outbound internet access
 
-**Entities show "Unavailable"** — The inverter may be offline (no internet, power cut). Check the LuxPower app. Entities will recover automatically when it comes back.
+</details>
 
-**Data is stale** — The integration polls every 30 seconds. If your inverter has poor connectivity, increase the poll interval in `custom_components/luxcloud/const.py` (`DEFAULT_SCAN_INTERVAL`).
+<details>
+<summary><strong>"Invalid auth" during setup</strong></summary>
 
-**Reconfiguring** — To change credentials or region without removing the integration, go to **Settings → Devices & Services → LuxCloud → ⋮ → Reconfigure**.
+- Double-check your email and password (case-sensitive)
+- If you signed up with Google or Apple, set a password via **Forgot Password** in the app first
+
+</details>
+
+<details>
+<summary><strong>Entities show "Unavailable"</strong></summary>
+
+- The inverter is likely offline (power cut, no internet, dongle unplugged)
+- Check the LuxPower app — entities recover automatically when the inverter comes back online
+
+</details>
+
+<details>
+<summary><strong>Data not updating / stale values</strong></summary>
+
+- Default poll interval is 30 seconds
+- Call `luxcloud.refresh` to force an immediate update
+- If persistent, check HA logs for API errors: **Settings → System → Logs**
+
+</details>
+
+<details>
+<summary><strong>Need to change credentials or region?</strong></summary>
+
+Go to **Settings → Devices & Services → LuxCloud → ⋮ → Reconfigure** — no need to delete and re-add.
+
+</details>
+
+---
+
+## Removing the integration
+
+**Settings → Devices & Services → LuxCloud → ⋮ → Delete → Confirm**
+
+This removes all entities and the device from Home Assistant. It does not affect your LuxPower account or inverter settings.
 
 ---
 
 ## Contributing
 
-Pull requests are welcome. Please run the HACS and hassfest validators locally before submitting:
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a PR.
 
 ```bash
-# hassfest
+# Install test dependencies
+pip install -r requirements_test.txt
+
+# Run tests
+pytest tests/
+
+# Validate with hassfest
 docker run --rm -v "$(pwd)":/github/workspace homeassistant/hassfest
 
-# HACS
+# Validate with HACS
 docker run --rm -v "$(pwd)":/github/workspace ghcr.io/hacs/action
 ```
 
-Run tests with:
+---
 
-```bash
-pip install -r requirements_test.txt
-pytest tests/
-```
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for release history.
 
 ---
 
 ## License
 
-MIT
+[MIT](LICENSE) © BeardedTech0o
