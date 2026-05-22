@@ -8,6 +8,6 @@
   "codeowners": ["@beardedtech0o"],
   "iot_class": "cloud_polling",
   "version": "1.0.0",
-  "homeassistant": "2024.4.0",
+  "homeassistant": "2023.4.0",
   "loggers": ["custom_components.luxcloud"]
 }

@@ -16,10 +16,8 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = [Platform.SENSOR, Platform.SWITCH, Platform.NUMBER, Platform.SELECT]
 
-type LuxCloudConfigEntry = ConfigEntry[LuxCloudCoordinator]
 
-
-async def async_setup_entry(hass: HomeAssistant, entry: LuxCloudConfigEntry) -> bool:
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     session = async_get_clientsession(hass)
     api = LuxCloudApi(
         session=session,
@@ -41,7 +39,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: LuxCloudConfigEntry) -> 
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: LuxCloudConfigEntry) -> bool:
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     unload_ok = await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
     if unload_ok and not hass.config_entries.async_entries(DOMAIN):
         hass.services.async_remove(DOMAIN, "refresh")

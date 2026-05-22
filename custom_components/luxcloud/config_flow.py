@@ -123,7 +123,7 @@ class LuxCloudConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     # ------------------------------------------------------------------
 
     async def async_step_reconfigure(self, user_input=None):
-        entry = self._get_reconfigure_entry()
+        entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
         errors: dict[str, str] = {}
 
         if user_input is not None:
@@ -131,11 +131,9 @@ class LuxCloudConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if error := await _validate(self.hass, merged):
                 errors["base"] = error
             else:
-                return self.async_update_reload_and_abort(
-                    entry,
-                    data=merged,
-                    reason="reconfigure_successful",
-                )
+                self.hass.config_entries.async_update_entry(entry, data=merged)
+                await self.hass.config_entries.async_reload(entry.entry_id)
+                return self.async_abort(reason="reconfigure_successful")
 
         return self.async_show_form(
             step_id="reconfigure",
