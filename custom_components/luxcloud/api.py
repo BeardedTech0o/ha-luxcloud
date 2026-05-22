@@ -1,4 +1,4 @@
-"""LuxPower cloud API client."""
+"""LuxCloud cloud API client."""
 from __future__ import annotations
 
 import asyncio
@@ -15,16 +15,16 @@ _LOGGER = logging.getLogger(__name__)
 _TOKEN_REFRESH_MARGIN = 300  # seconds before expiry to refresh
 
 
-class LuxPowerAuthError(Exception):
+class LuxCloudAuthError(Exception):
     """Raised when authentication fails."""
 
 
-class LuxPowerApiError(Exception):
+class LuxCloudApiError(Exception):
     """Raised on API communication errors."""
 
 
-class LuxPowerApi:
-    """Async client for the LuxPower cloud API."""
+class LuxCloudApi:
+    """Async client for the LuxCloud cloud API."""
 
     def __init__(
         self,
@@ -66,7 +66,7 @@ class LuxPowerApi:
         data = await self._post("/web/api/login", payload, auth=False)
         token = data.get("token")
         if not token:
-            raise LuxPowerAuthError("No token returned from login")
+            raise LuxCloudAuthError("No token returned from login")
         self._token = token
         loop = asyncio.get_event_loop()
         # expiration field is in seconds from epoch; fall back to 1 hour
@@ -102,15 +102,15 @@ class LuxPowerApi:
             ) as resp:
                 if resp.status == 401:
                     self._token = None
-                    raise LuxPowerAuthError("Authentication token rejected (401)")
+                    raise LuxCloudAuthError("Authentication token rejected (401)")
                 resp.raise_for_status()
                 body = await resp.json()
         except aiohttp.ClientError as exc:
-            raise LuxPowerApiError(f"HTTP error talking to LuxPower: {exc}") from exc
+            raise LuxCloudApiError(f"HTTP error talking to LuxCloud: {exc}") from exc
 
         if not body.get("success", True):
             msg = body.get("msg") or body.get("message") or "Unknown API error"
-            raise LuxPowerApiError(f"API error: {msg}")
+            raise LuxCloudApiError(f"API error: {msg}")
         return body
 
     async def _post(self, path: str, payload: dict, *, auth: bool = True) -> dict:

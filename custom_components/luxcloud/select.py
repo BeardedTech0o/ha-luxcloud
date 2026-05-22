@@ -1,4 +1,4 @@
-"""LuxPower select entity for work mode."""
+"""LuxCloud select entity for work mode."""
 from __future__ import annotations
 
 from homeassistant.components.select import SelectEntity
@@ -8,7 +8,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, WORK_MODES
-from .coordinator import LuxPowerCoordinator
+from .coordinator import LuxCloudCoordinator
 
 
 async def async_setup_entry(
@@ -16,11 +16,11 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    coordinator: LuxPowerCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([LuxPowerWorkMode(coordinator, entry)])
+    coordinator: LuxCloudCoordinator = hass.data[DOMAIN][entry.entry_id]
+    async_add_entities([LuxCloudWorkMode(coordinator, entry)])
 
 
-class LuxPowerWorkMode(CoordinatorEntity[LuxPowerCoordinator], SelectEntity):
+class LuxCloudWorkMode(CoordinatorEntity[LuxCloudCoordinator], SelectEntity):
     """Select entity to change inverter work mode."""
 
     _attr_has_entity_name = True
@@ -31,14 +31,14 @@ class LuxPowerWorkMode(CoordinatorEntity[LuxPowerCoordinator], SelectEntity):
     # reverse lookup: name → int
     _MODE_KEYS = {v: k for k, v in WORK_MODES.items()}
 
-    def __init__(self, coordinator: LuxPowerCoordinator, entry: ConfigEntry) -> None:
+    def __init__(self, coordinator: LuxCloudCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         serial = entry.data["serial_number"]
         self._attr_unique_id = f"{serial}_work_mode_select"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, serial)},
-            "name": f"LuxPower {serial}",
-            "manufacturer": "LuxPower",
+            "name": f"LuxCloud {serial}",
+            "manufacturer": "LuxCloud",
             "model": "Solar Inverter",
         }
 

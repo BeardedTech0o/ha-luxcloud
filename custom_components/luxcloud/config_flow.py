@@ -1,4 +1,4 @@
-"""Config flow for LuxPower integration."""
+"""Config flow for LuxCloud integration."""
 from __future__ import annotations
 
 import voluptuous as vol
@@ -6,7 +6,7 @@ from homeassistant import config_entries
 from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import LuxPowerApi, LuxPowerApiError, LuxPowerAuthError
+from .api import LuxCloudApi, LuxCloudApiError, LuxCloudAuthError
 from .const import (
     CONF_REGION,
     CONF_SERIAL,
@@ -34,8 +34,8 @@ STEP_REAUTH_SCHEMA = vol.Schema(
 )
 
 
-class LuxPowerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle the LuxPower configuration flow."""
+class LuxCloudConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+    """Handle the LuxCloud configuration flow."""
 
     VERSION = 1
 
@@ -44,7 +44,7 @@ class LuxPowerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             session = async_get_clientsession(self.hass)
-            api = LuxPowerApi(
+            api = LuxCloudApi(
                 session=session,
                 username=user_input[CONF_USERNAME],
                 password=user_input[CONF_PASSWORD],
@@ -53,9 +53,9 @@ class LuxPowerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             )
             try:
                 await api.async_validate_credentials()
-            except LuxPowerAuthError:
+            except LuxCloudAuthError:
                 errors["base"] = "invalid_auth"
-            except LuxPowerApiError:
+            except LuxCloudApiError:
                 errors["base"] = "cannot_connect"
             except Exception:  # noqa: BLE001
                 errors["base"] = "unknown"
@@ -63,7 +63,7 @@ class LuxPowerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 await self.async_set_unique_id(user_input[CONF_SERIAL])
                 self._abort_if_unique_id_configured()
                 return self.async_create_entry(
-                    title=f"LuxPower {user_input[CONF_SERIAL]}",
+                    title=f"LuxCloud {user_input[CONF_SERIAL]}",
                     data=user_input,
                 )
 
@@ -87,7 +87,7 @@ class LuxPowerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             existing = self._reauth_entry
             merged = {**existing.data, **user_input}
             session = async_get_clientsession(self.hass)
-            api = LuxPowerApi(
+            api = LuxCloudApi(
                 session=session,
                 username=merged[CONF_USERNAME],
                 password=merged[CONF_PASSWORD],
@@ -96,9 +96,9 @@ class LuxPowerConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             )
             try:
                 await api.async_validate_credentials()
-            except LuxPowerAuthError:
+            except LuxCloudAuthError:
                 errors["base"] = "invalid_auth"
-            except LuxPowerApiError:
+            except LuxCloudApiError:
                 errors["base"] = "cannot_connect"
             except Exception:  # noqa: BLE001
                 errors["base"] = "unknown"

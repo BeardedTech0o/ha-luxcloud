@@ -2,8 +2,8 @@
   "config": {
     "step": {
       "user": {
-        "title": "Connect to LuxPower",
-        "description": "Enter your **LuxPower cloud account** credentials and inverter details.\n\nDon't have an account? Download the **LuxPower** app (iOS / Android) and register for free, then add your inverter using the serial number on the label.",
+        "title": "Connect to LuxCloud",
+        "description": "Enter your **LuxCloud cloud account** credentials and inverter details.\n\nDon't have an account? Download the **LuxCloud** app (iOS / Android) and register for free, then add your inverter using the serial number on the label.",
         "data": {
           "username": "Email address",
           "password": "Password",
@@ -11,14 +11,14 @@
           "region": "Server region"
         },
         "data_description": {
-          "username": "The email address you use to log in to the LuxPower app or web portal.",
-          "password": "Your LuxPower account password.",
-          "serial_number": "Printed on the label on the side of your inverter — typically 10 characters, e.g. `2312XXXXXXXX`. You can also find it in the LuxPower app under Device → Info.",
+          "username": "The email address you use to log in to the LuxCloud app or web portal.",
+          "password": "Your LuxCloud account password.",
+          "serial_number": "Printed on the label on the side of your inverter — typically 10 characters, e.g. `2312XXXXXXXX`. You can also find it in the LuxCloud app under Device → Info.",
           "region": "Choose **EU** if your inverter is registered on the European server (eu.luxpowertek.com), or **Global** for all other regions."
         }
       },
       "reauth_confirm": {
-        "title": "Re-authenticate LuxPower",
+        "title": "Re-authenticate LuxCloud",
         "description": "Your session has expired. Please re-enter your credentials.",
         "data": {
           "username": "Email address",
@@ -27,8 +27,8 @@
       }
     },
     "error": {
-      "invalid_auth": "Incorrect username or password. Please check your LuxPower app credentials.",
-      "cannot_connect": "Could not reach the LuxPower server. Check your internet connection or try the other region.",
+      "invalid_auth": "Incorrect username or password. Please check your LuxCloud app credentials.",
+      "cannot_connect": "Could not reach the LuxCloud server. Check your internet connection or try the other region.",
       "unknown": "Unexpected error — check the Home Assistant logs for details."
     },
     "abort": {

@@ -1,6 +1,6 @@
 {
-  "domain": "luxpower",
-  "name": "LuxPower Inverter",
+  "domain": "luxcloud",
+  "name": "LuxCloud Inverter",
   "config_flow": true,
   "documentation": "https://github.com/beardedtech0o/ha-solar-integration",
   "requirements": ["aiohttp>=3.8.0"],

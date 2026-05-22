@@ -1,4 +1,4 @@
-DOMAIN = "luxpower"
+DOMAIN = "luxcloud"
 DEFAULT_SCAN_INTERVAL = 30
 
 CONF_SERIAL = "serial_number"

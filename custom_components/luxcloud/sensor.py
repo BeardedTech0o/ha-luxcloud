@@ -1,4 +1,4 @@
-"""LuxPower sensor entities."""
+"""LuxCloud sensor entities."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -24,7 +24,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN, INVERTER_STATUS, WORK_MODES
-from .coordinator import LuxPowerCoordinator
+from .coordinator import LuxCloudCoordinator
 
 
 @dataclass(frozen=True)
@@ -363,22 +363,22 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    coordinator: LuxPowerCoordinator = hass.data[DOMAIN][entry.entry_id]
+    coordinator: LuxCloudCoordinator = hass.data[DOMAIN][entry.entry_id]
     async_add_entities(
-        LuxPowerSensor(coordinator, entry, desc)
+        LuxCloudSensor(coordinator, entry, desc)
         for desc in SENSOR_DESCRIPTIONS
     )
 
 
-class LuxPowerSensor(CoordinatorEntity[LuxPowerCoordinator], SensorEntity):
-    """A single LuxPower sensor."""
+class LuxCloudSensor(CoordinatorEntity[LuxCloudCoordinator], SensorEntity):
+    """A single LuxCloud sensor."""
 
     entity_description: LuxSensorDescription
     _attr_has_entity_name = True
 
     def __init__(
         self,
-        coordinator: LuxPowerCoordinator,
+        coordinator: LuxCloudCoordinator,
         entry: ConfigEntry,
         description: LuxSensorDescription,
     ) -> None:
@@ -388,8 +388,8 @@ class LuxPowerSensor(CoordinatorEntity[LuxPowerCoordinator], SensorEntity):
         self._attr_unique_id = f"{serial}_{description.key}"
         self._attr_device_info = {
             "identifiers": {(DOMAIN, serial)},
-            "name": f"LuxPower {serial}",
-            "manufacturer": "LuxPower",
+            "name": f"LuxCloud {serial}",
+            "manufacturer": "LuxCloud",
             "model": "Solar Inverter",
             "configuration_url": "https://openapi.luxpowertek.com",
         }
