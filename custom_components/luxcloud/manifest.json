@@ -2,12 +2,12 @@
   "domain": "luxcloud",
   "name": "LuxCloud Inverter",
   "config_flow": true,
-  "documentation": "https://github.com/beardedtech0o/ha-luxcloud",
+  "documentation": "https://github.com/BeardedTech0o/ha-luxcloud",
+  "issue_tracker": "https://github.com/BeardedTech0o/ha-luxcloud/issues",
   "requirements": ["aiohttp>=3.8.0"],
   "dependencies": [],
-  "codeowners": ["@beardedtech0o"],
+  "codeowners": ["@BeardedTech0o"],
   "iot_class": "cloud_polling",
   "version": "1.0.0",
-  "homeassistant": "2023.4.0",
   "loggers": ["custom_components.luxcloud"]
 }
