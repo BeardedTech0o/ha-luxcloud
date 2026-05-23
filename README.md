@@ -2,7 +2,7 @@
 
 # LuxCloud for Home Assistant
 
-**Monitor and control your LuxPower solar inverter and battery storage directly from Home Assistant.**
+**Monitor your LuxPower solar inverter and battery storage from Home Assistant.**
 
 [![HACS Badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://hacs.xyz)
 [![GitHub Release](https://img.shields.io/github/v/release/BeardedTech0o/ha-luxcloud?style=for-the-badge&color=brightgreen)](https://github.com/BeardedTech0o/ha-luxcloud/releases)
@@ -16,18 +16,20 @@
 
 ## Overview
 
-LuxCloud connects your **LuxPower** hybrid inverter to Home Assistant via the LuxPower cloud API, giving you real-time monitoring of your solar, battery, and grid power flows — plus full control over charge/discharge behaviour from automations and dashboards.
+LuxCloud connects your **LuxPower** hybrid inverter to Home Assistant via the LuxPower cloud API, giving you real-time monitoring of your solar, battery, and grid power flows.
 
 ### What you get
 
 | Platform | Entities |
 |:---------|:---------|
 | 🌡️ **Sensor** | Solar power, battery power & SOC, grid import/export, home load, PV string voltages & currents, temperatures, daily & lifetime energy totals, inverter status |
-| 🔀 **Switch** | AC charge on/off |
-| 🔢 **Number** | AC charge current limit, discharge cutoff SOC, charge cutoff SOC |
-| 🔘 **Select** | Work mode — Self-use / Feed-in Priority / Backup / Manual |
+| 🔀 **Switch** | AC charge on/off *(see note below)* |
+| 🔢 **Number** | AC charge current limit, discharge cutoff SOC, charge cutoff SOC *(see note below)* |
+| 🔘 **Select** | Work mode — Self-use / Feed-in Priority / Backup / Manual *(see note below)* |
 
 > All entities are grouped under a single **device** per inverter, named by serial number.
+
+> **Control entities (Switch, Number, Select):** These are present in the integration but have **not been fully verified**. They require an **installer or owner-level** LuxPower account — standard end-user (Viewer) accounts do not have write permissions and will see errors when using controls. The register names used internally are based on LuxPower API conventions and may need adjustment for your specific inverter firmware.
 
 ---
 
@@ -112,7 +114,7 @@ config/
 
 > All energy sensors use `state_class: total_increasing` — compatible with the **Energy Dashboard** out of the box.
 
-### 🎛️ Controls
+### 🎛️ Controls *(experimental — requires installer/owner account)*
 
 | Entity | Type | Range | Description |
 |:-------|:----:|:-----:|:------------|
@@ -121,6 +123,8 @@ config/
 | Discharge Cutoff SOC | Number | 5–100 % | Battery stops discharging below this level |
 | Charge Cutoff SOC | Number | 5–100 % | Battery stops charging above this level |
 | Work Mode | Select | — | Self-use / Feed-in Priority / Backup / Manual |
+
+> These controls require your LuxPower account to have **installer or owner** permissions. A standard end-user (Viewer) account — the default for accounts registered via the LuxPower app — cannot send write commands and will receive a permissions error. If your controls aren't working, check your account role in the LuxPower portal.
 
 ### 🔧 Diagnostic sensors *(disabled by default)*
 
@@ -144,69 +148,28 @@ Battery discharged  →  Battery Discharge Today
 
 ## Automation examples
 
-### Forecast-based overnight charging
-
-Charge from the grid when tomorrow's solar forecast is low:
-
-```yaml
-automation:
-  - alias: "LuxCloud: charge overnight if solar forecast is low"
-    trigger:
-      - platform: time
-        at: "22:00:00"
-    condition:
-      - condition: numeric_state
-        entity_id: sensor.solcast_forecast_tomorrow
-        below: 5  # kWh — adjust to your needs
-    action:
-      - service: switch.turn_on
-        target:
-          entity_id: switch.luxcloud_SERIAL_ac_charge
-      - service: number.set_value
-        target:
-          entity_id: number.luxcloud_SERIAL_ac_charge_current_limit
-        data:
-          value: 50
-      - service: select.select_option
-        target:
-          entity_id: select.luxcloud_SERIAL_work_mode
-        data:
-          option: "Self Use"
-```
-
-### Time-of-use tariff switching
-
-Switch to Feed-in Priority during peak export rates:
-
-```yaml
-automation:
-  - alias: "LuxCloud: export during peak rate"
-    trigger:
-      - platform: time
-        at: "16:00:00"
-    action:
-      - service: select.select_option
-        target:
-          entity_id: select.luxcloud_SERIAL_work_mode
-        data:
-          option: "Feed-in Priority"
-  - alias: "LuxCloud: return to self-use after peak"
-    trigger:
-      - platform: time
-        at: "19:00:00"
-    action:
-      - service: select.select_option
-        target:
-          entity_id: select.luxcloud_SERIAL_work_mode
-        data:
-          option: "Self Use"
-```
-
 ### Force a data refresh
 
 ```yaml
 service: luxcloud.refresh
 ```
+
+### Notify when battery is low
+
+```yaml
+automation:
+  - alias: "LuxCloud: low battery alert"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.SERIAL_soc
+        below: 20
+    action:
+      - service: notify.mobile_app
+        data:
+          message: "Battery is at {{ states('sensor.SERIAL_soc') }}%"
+```
+
+> **Note:** Automation examples using inverter controls (AC charge switch, work mode, etc.) have been omitted because control functionality requires an installer or owner-level account and has not been fully verified. Replace `SERIAL` with your inverter serial number in entity IDs.
 
 ---
 
@@ -227,6 +190,8 @@ Requires the LuxPower WiFi/LAN monitoring dongle and an active internet connecti
 |:-----------|:--------|
 | Cloud dependency | Requires internet and the LuxPower cloud API to be reachable |
 | Poll-only | API has no push/webhook support; minimum update interval is 30 s |
+| Controls require installer account | Standard end-user (Viewer) accounts cannot send write commands — controls will fail with a permissions error |
+| Controls unverified | The inverter register names used for write commands are based on LuxPower API conventions and have not been verified against all firmware versions |
 | Control read-back | Write commands are confirmed on the next poll cycle (~30 s) |
 | No local mode | Local RS485/Modbus is not currently supported |
 
