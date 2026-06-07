@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 from typing import Any
 
@@ -121,8 +122,16 @@ class LuxCloudApi:
                 data=data,
                 timeout=aiohttp.ClientTimeout(total=20),
             ) as resp:
+                raw = await resp.text()
+                if not resp.ok:
+                    _LOGGER.error(
+                        "LuxCloud HTTP %s at %s — response body: %s",
+                        resp.status,
+                        path,
+                        raw,
+                    )
                 resp.raise_for_status()
-                body = await resp.json(content_type=None)
+                body = json.loads(raw) if raw else {}
         except aiohttp.ClientError as exc:
             raise LuxCloudApiError(f"HTTP error talking to LuxCloud: {exc}") from exc
 
@@ -236,7 +245,7 @@ class LuxCloudApi:
         await self._request(
             "/v2/web/maintain/remoteSet/write",
             data={
-                "inverterSn": self._serial,
+                "serialNum": self._serial,
                 "holdParam": hold_param,
                 "valueText": str(value),
                 "clientType": "WEB",
@@ -246,7 +255,7 @@ class LuxCloudApi:
 
     async def async_set_ac_charge(self, enabled: bool) -> None:
         """Enable or disable AC charging."""
-        await self._write("HOLD_AC_CHARGE_ENABLE", 1 if enabled else 0)
+        await self._write("HOLD_AC_CHARGE_ENABLE", "true" if enabled else "false")
 
     async def async_set_ac_charge_current(self, current: int) -> None:
         """Set AC charge current limit (0-80 A)."""
