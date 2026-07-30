@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/banner.png" alt="LuxCloud for Home Assistant" width="100%">
+<img src="assets/icons/banner.png" alt="LuxCloud for Home Assistant" width="100%">
 
 ### Monitor your LuxPower solar inverter and battery storage from Home Assistant
 
