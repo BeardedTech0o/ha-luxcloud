@@ -4,6 +4,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import math
 from typing import Any
 
 import aiohttp
@@ -13,6 +14,57 @@ from .const import API_URLS, REGION_GLOBAL
 _LOGGER = logging.getLogger(__name__)
 
 _TOKEN_REFRESH_MARGIN = 300  # seconds before expiry to refresh
+
+
+# Energy counters: normalised key -> (legacy keys already in kWh, portal field stem).
+# The portal returns e.g. todayYielding=115 (0.1 kWh) alongside todayYieldingText="11.5" (kWh).
+_ENERGY_FIELDS: dict[str, tuple[tuple[str, ...], str | None]] = {
+    "e_pv_day": (("ePvDay", "eYieldDay"), "todayYielding"),
+    "e_to_grid_day": (("eToGridDay", "eExportDay"), "todayExport"),
+    "e_to_user_day": (("eToUserDay", "eImportDay"), "todayImport"),
+    "e_discharge_day": (("eDischargeDay", "eDisChgDay"), "todayDischarging"),
+    "e_charge_day": (("eChargeDay", "eChgDay"), "todayCharging"),
+    "e_eps_day": (("eEpsDay", "eEPSDay"), None),
+    "e_pv_all": (("ePvAll", "eYieldAll"), "totalYielding"),
+    "e_to_grid_all": (("eToGridAll", "eExportAll"), "totalExport"),
+    "e_to_user_all": (("eToUserAll", "eImportAll"), "totalImport"),
+    "e_discharge_all": (("eDischargeAll", "eDisChgAll"), "totalDischarging"),
+    "e_charge_all": (("eChargeAll", "eChgAll"), "totalCharging"),
+}
+
+
+def _counter(value: Any) -> float | None:
+    """Parse a counter; None for missing, boolean, non-finite or negative values."""
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(number) or number < 0:
+        return None
+    return number
+
+
+def parse_energy(en: dict[str, Any]) -> dict[str, float | None]:
+    """Normalise a getInverterEnergyInfo response into kWh counters.
+
+    Legacy key names (already kWh) win; otherwise the portal's ``<stem>Text``
+    value (kWh) is used, falling back to ``<stem>`` in units of 0.1 kWh.
+    """
+    if isinstance(en.get("data"), dict):
+        en = {**en["data"], **{k: v for k, v in en.items() if k != "data"}}
+
+    result: dict[str, float | None] = {}
+    for key, (legacy, stem) in _ENERGY_FIELDS.items():
+        value = next((v for v in (_counter(en.get(k)) for k in legacy) if v is not None), None)
+        if value is None and stem:
+            value = _counter(en.get(f"{stem}Text"))
+            if value is None:
+                raw = _counter(en.get(stem))
+                value = raw / 10 if raw is not None else None
+        result[key] = value
+    return result
 
 
 class LuxCloudAuthError(Exception):
@@ -165,13 +217,7 @@ class LuxCloudApi:
             "/v2/api/inverter/getInverterRuntime",
             data={"serialNum": self._serial},
         )
-        try:
-            en = await self._request(
-                "/v2/api/inverter/getInverterEnergyInfo",
-                data={"serialNum": self._serial},
-            )
-        except LuxCloudApiError:
-            en = {}
+        energy = await self._async_get_energy()
 
         def _f(d: dict, *keys: str) -> Any:
             """Return the first matching key from dict d."""
@@ -210,20 +256,28 @@ class LuxCloudApi:
             "ac_charge_current": _f(rt, "acChargeMaxCurr", "maxChgCurrValue"),
             "discharge_cutoff_soc": _f(rt, "dischgCutSoc", "minSoc", "disChgCutSoc"),
             "charge_cutoff_soc": _f(rt, "chgCutSoc", "maxSoc"),
-            # Daily energy (kWh)
-            "e_pv_day": _f(en, "ePvDay", "eYieldDay"),
-            "e_to_grid_day": _f(en, "eToGridDay", "eExportDay"),
-            "e_to_user_day": _f(en, "eToUserDay", "eImportDay"),
-            "e_discharge_day": _f(en, "eDischargeDay", "eDisChgDay"),
-            "e_charge_day": _f(en, "eChargeDay", "eChgDay"),
-            "e_eps_day": _f(en, "eEpsDay", "eEPSDay"),
-            # Total lifetime energy (kWh)
-            "e_pv_all": _f(en, "ePvAll", "eYieldAll"),
-            "e_to_grid_all": _f(en, "eToGridAll", "eExportAll"),
-            "e_to_user_all": _f(en, "eToUserAll", "eImportAll"),
-            "e_discharge_all": _f(en, "eDischargeAll", "eDisChgAll"),
-            "e_charge_all": _f(en, "eChargeAll", "eChgAll"),
+            # Daily and lifetime energy (kWh)
+            **energy,
         }
+
+    async def _async_get_energy(self) -> dict[str, float | None]:
+        """Fetch energy counters, falling back to the non-v2 path if none are usable."""
+        for path in (
+            "/v2/api/inverter/getInverterEnergyInfo",
+            "/api/inverter/getInverterEnergyInfo",
+        ):
+            try:
+                en = await self._request(path, data={"serialNum": self._serial})
+            except LuxCloudAuthError:
+                raise
+            except LuxCloudApiError as exc:
+                _LOGGER.warning("LuxCloud energy request to %s failed: %s", path, exc)
+                continue
+            parsed = parse_energy(en)
+            if parsed["e_pv_day"] is not None:
+                return parsed
+            _LOGGER.debug("No usable daily solar counter from %s", path)
+        return parse_energy({})
 
     async def async_get_inverter_list(self) -> list[dict]:
         """Return all inverters associated with the account."""
