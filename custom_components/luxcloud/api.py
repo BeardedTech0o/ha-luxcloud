@@ -46,6 +46,16 @@ def _counter(value: Any) -> float | None:
     return number
 
 
+def _numeric_power(value: Any) -> float | None:
+    """Parse a signed power value; None for missing, invalid or non-finite input."""
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    return number if math.isfinite(number) else None
+
 def parse_energy(en: dict[str, Any]) -> dict[str, float | None]:
     """Normalise a getInverterEnergyInfo response into kWh counters.
 
@@ -219,6 +229,14 @@ class LuxCloudApi:
         )
         energy = await self._async_get_energy()
 
+        p_to_user = _numeric_power(rt.get("pToUser"))
+        p_to_grid = _numeric_power(rt.get("pToGrid"))
+        p_grid = (
+            p_to_user - p_to_grid
+            if p_to_user is not None and p_to_grid is not None
+            else None
+        )
+
         def _f(d: dict, *keys: str) -> Any:
             """Return the first matching key from dict d."""
             for k in keys:
@@ -232,7 +250,7 @@ class LuxCloudApi:
             "p_pv1": rt.get("ppv1"),
             "p_pv2": rt.get("ppv2"),
             "p_battery": rt.get("batPower"),
-            "p_grid": _f(rt, "pToGrid"),
+            "p_grid": p_grid,
             "p_load": _f(rt, "consumptionPower", "pLoad"),
             "p_eps": _f(rt, "peps", "seps"),
             # SOC / voltage / current
