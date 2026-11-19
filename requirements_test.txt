@@ -1,4 +1,9 @@
 pytest-homeassistant-custom-component>=0.13.0
 pytest-asyncio>=0.23
 
-certifi>=2026.10.19 # transitive dependency pinned by Aikido Autofix to remediate a vulnerability
+# Transitive dependencies pinned to patched releases to clear Aikido findings
+certifi>=2026.10.19
+homeassistant>=2026.7.0
+pyopenssl>=26.0.0
+h11>=0.16.0
+jinja2>=3.1.6
