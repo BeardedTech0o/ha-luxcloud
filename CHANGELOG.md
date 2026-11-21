@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Calculate live grid power as import minus export so imports are positive and exports are negative; report unavailable when either source reading is invalid.
+
 ---
 
 ## [1.0.0] — 2025-05-22
