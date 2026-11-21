@@ -56,6 +56,7 @@ def _numeric_power(value: Any) -> float | None:
         return None
     return number if math.isfinite(number) else None
 
+
 def parse_energy(en: dict[str, Any]) -> dict[str, float | None]:
     """Normalise a getInverterEnergyInfo response into kWh counters.
 
